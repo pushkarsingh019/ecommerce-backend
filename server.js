@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors"
+import { v4 as uuid } from "uuid";
+import jwt from "jsonwebtoken"
 
 const app = express();
 const PORT = process.env.PORT || 8080
@@ -11,6 +13,7 @@ import { users } from "./db/user.js";
 
 // importing utils
 import authenticateToken from "./utils/authenticateToken.js";
+import { ACCESS_SECRET } from "./utils/secret.js";
 
 // middleware
 app.use(express.json());
@@ -81,6 +84,43 @@ app.route(`/api/user/cart/:productId`, authenticateToken)
     users.find(user => user._id === userId).cart.find(product => product.productId === productId).quantity += 1;
     const cart = users.find(user => user._id === userId);
     res.status(200).send(cart);
+})
+
+// authentication and authorisation routes
+app.post(`/api/auth/signup`, (req, res) => {
+    const {name, email, password} = req.body;
+    const newUser = {
+        _id : uuid(),
+        name,
+        email,
+        password, 
+        cart : [],
+        wishlist : [],
+        address : [],
+        orders : [],
+    };
+    // add existing user function later.
+    users.push(newUser);
+    const accessToken = jwt.sign(newUser, ACCESS_SECRET)
+    res.status(200).json({user : newUser, token : accessToken})
+});
+
+app.post(`/api/auth/login`, (req, res) => {
+    const {email, password} = req.body;
+    const userExists = users.find(user => user.email === email) ? true : false;
+    if(userExists){
+        const user = users.find(user => user.email === email);
+        if(user.password === password){
+            const access_token = jwt.sign(user, ACCESS_SECRET);
+            res.status(200).json({user, access_token, message : "Logged In..", status : 200})
+        }
+        else{
+            res.status(200).json({message : `wrong password for the ${user.email}`, status : 401})
+        }
+    }
+    if (userExists === false){
+        res.status(200).json({message : `user does not exist, sign up`, status : 404}, )
+    }
 })
 
 

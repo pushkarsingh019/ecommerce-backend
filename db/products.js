@@ -1,5 +1,4 @@
-import { v4 as uuid } from "uuid"
-
+import {v4 as uuid} from "uuid"
 
 export const products = [
   {
@@ -10,6 +9,7 @@ export const products = [
     stockUnits: 15,
     image: 'iphone13pro.png',
     category: 'Smartphones',
+    rating: 4.5,
   },
   {
     _id: uuid(),
@@ -19,6 +19,7 @@ export const products = [
     stockUnits: 20,
     image: 'macbookpro.png',
     category: 'Laptops',
+    rating: 4.7,
   },
   {
     _id: uuid(),
@@ -28,6 +29,7 @@ export const products = [
     stockUnits: 12,
     image: 'hpspectre.png',
     category: 'Laptops',
+    rating: 4.3,
   },
   {
     _id: uuid(),
@@ -37,6 +39,7 @@ export const products = [
     stockUnits: 18,
     image: 's21ultra.png',
     category: 'Smartphones',
+    rating: 3,
   },
   {
     _id: uuid(),
@@ -46,6 +49,7 @@ export const products = [
     stockUnits: 8,
     image: 'dellxps15.png',
     category: 'Laptops',
+    rating: 4.4,
   },
   {
     _id: uuid(),
@@ -55,6 +59,7 @@ export const products = [
     stockUnits: 10,
     image: 'pixel6pro.png',
     category: 'Smartphones',
+    rating: 4.7,
   },
   {
     _id: uuid(),
@@ -64,6 +69,7 @@ export const products = [
     stockUnits: 5,
     image: 'thinkpadx1.png',
     category: 'Laptops',
+    rating: 4.1,
   },
   {
     _id: uuid(),
@@ -73,6 +79,7 @@ export const products = [
     stockUnits: 25,
     image: 'ps5.png',
     category: 'Gaming Consoles',
+    rating: 4.9,
   },
   {
     _id: uuid(),
@@ -82,6 +89,7 @@ export const products = [
     stockUnits: 3,
     image: 'samsungq90r.png',
     category: 'Other',
+    rating: 4.6,
   },
   {
     _id: uuid(),
@@ -91,6 +99,7 @@ export const products = [
     stockUnits: 30,
     image: 'amazonecho.png',
     category: 'Others',
+    rating: 4.3,
   },
   {
     _id: uuid(),
@@ -100,6 +109,7 @@ export const products = [
     stockUnits: 6,
     image: 'goprohero9.png',
     category: 'Cameras',
+    rating: 4.5,
   },
   {
     _id: uuid(),
@@ -109,6 +119,7 @@ export const products = [
     stockUnits: 4,
     image: 'lgcxoled.png',
     category: 'Others',
+    rating: 4.7,
   },
   {
     _id: uuid(),
@@ -118,7 +129,16 @@ export const products = [
     stockUnits: 14,
     image: 'surfacepro7.png',
     category: 'Laptops',
+    rating: 4.2,
+  },
+  {
+    _id: uuid(),
+    name: 'Ipad',
+    description: 'Macbooks power, tablets convenience. all in one device',
+    price: 999,
+    stockUnits: 14,
+    image: 'ipad.png',
+    category: 'Tablets',
+    rating: 4.4,
   },
 ];
-
-export default products;

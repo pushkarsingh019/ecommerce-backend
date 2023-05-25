@@ -7,7 +7,9 @@ export const users = [{
     email : "gavin@hooli.com",
     password : "killpiedpiper",
     cart : [],
-    wishlist : []
+    wishlist : [],
+    address : [{id : uuid(), address : "Menlo Park, 2441 Sand Hill Rd, United States,", number : 12345678, default : true}],
+    orders : []
 }];
 
 // cart schema
