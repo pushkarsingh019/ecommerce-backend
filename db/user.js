@@ -1,7 +1,7 @@
 // user schema
 import { v4 as uuid } from "uuid"
 
-export const users = [{
+export let users = [{
     _id : uuid(),
     name : "Gavin Belson",
     email : "gavin@hooli.com",

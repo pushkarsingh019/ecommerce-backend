@@ -121,6 +121,63 @@ app.post(`/api/auth/login`, (req, res) => {
     if (userExists === false){
         res.status(200).json({message : `user does not exist, sign up`, status : 404}, )
     }
+});
+
+// updating user routes
+app.post(`/api/user/updateAddress`, (req, res) => {
+    // expecting data like -> userId, newAddress
+    /*
+        - the structure should go like
+        if(address = empty) => then just add the new address and make it default
+        if(address is not empty) => there there should be atleast one address and that would be default, so remove the old default and add the new address
+    */
+    const {userId, addressDetails} = req.body;
+    console.log(addressDetails);
+    const user = users.find(user => user._id === userId);
+    const userAddress = user.address.find(address => address.default === true);
+    console.log(userAddress);
+    if(user.address.length === 0){
+        const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : true};
+        user.address = [...user.address, newAddress];
+        res.status(200).send(user)
+    }
+    else{
+        if(userAddress){
+            console.log("there is default")
+            if(addressDetails.default === true){
+                userAddress.default = false;
+            }
+            const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : addressDetails.default};
+            user.address = [...user.address, newAddress];
+            console.log(user.address);
+            res.status(200).send(user);
+        }
+        else{
+            console.log("so there is no default")
+            const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : addressDetails.default};
+            user.address = [...user.address, newAddress];
+            res.status(200).send(user);
+        }
+        
+    }
+    // if(addressDetails.isDefault === undefined || addressDetails.isDefault === false){
+    //     const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : false};
+    //     user.address = [...user.address, newAddress];
+    //     res.status(200).send(user);
+    // }
+    // if(userAddress === undefined){
+    //     const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : addressDetails.isDefault};
+    //     user.address = [...user.address, newAddress];
+    // }
+    // else{
+        
+    // }
+    // users.find(user => user._id === userId).address.find(address => address.default === true).default ? users.find(user => user._id === userId).address.find(address => address.default === true).default = false : null
+    // let userAddress = users.find(user => user._id === userId).address;
+    // userAddress = [...userAddress, {addressDetails}];
+    // console.log(userAddress);
+    // res.status(200).send(users.find(user => user._id === userId));
+    // res.status(200).send(user);
 })
 
 
