@@ -14,6 +14,7 @@ import { users } from "./db/user.js";
 // importing utils
 import authenticateToken from "./utils/authenticateToken.js";
 import { ACCESS_SECRET } from "./utils/secret.js";
+import orders from "./db/orders.js";
 
 // middleware
 app.use(express.json());
@@ -99,86 +100,103 @@ app.post(`/api/auth/signup`, (req, res) => {
         address : [],
         orders : [],
     };
-    // add existing user function later.
+    // TODO: add existing user function later.
     users.push(newUser);
-    const accessToken = jwt.sign(newUser, ACCESS_SECRET)
+    const accessToken = jwt.sign(newUser, ACCESS_SECRET);
     res.status(200).json({user : newUser, token : accessToken})
 });
 
 app.post(`/api/auth/login`, (req, res) => {
-    const {email, password} = req.body;
-    const userExists = users.find(user => user.email === email) ? true : false;
-    if(userExists){
-        const user = users.find(user => user.email === email);
-        if(user.password === password){
-            const access_token = jwt.sign(user, ACCESS_SECRET);
-            res.status(200).json({user, access_token, message : "Logged In..", status : 200})
+        const {email, password} = req.body;
+        const userExists = users.find(user => user.email === email) ? true : false;
+        if(userExists){
+            const user = users.find(user => user.email === email);
+            if(user.password === password){
+                const access_token = jwt.sign(user, ACCESS_SECRET);
+                res.status(200).json({user, access_token, message : "Logged In..", status : 200})
+            }
+            else{
+                res.status(200).json({message : `wrong password for the ${user.email}`, status : 401})
+            }
         }
-        else{
-            res.status(200).json({message : `wrong password for the ${user.email}`, status : 401})
-        }
-    }
-    if (userExists === false){
-        res.status(200).json({message : `user does not exist, sign up`, status : 404}, )
-    }
+        if (userExists === false){
+            res.status(200).json({message : `user does not exist, sign up`, status : 404}, )
+        } 
 });
 
 // updating user routes
-app.post(`/api/user/updateAddress`, (req, res) => {
-    // expecting data like -> userId, newAddress
-    /*
-        - the structure should go like
-        if(address = empty) => then just add the new address and make it default
-        if(address is not empty) => there there should be atleast one address and that would be default, so remove the old default and add the new address
-    */
-    const {userId, addressDetails} = req.body;
-    console.log(addressDetails);
+app.post(`/api/user/address`, authenticateToken, (req, res) => {
+    const {addressDetails} = req.body;
+    const requestedUser = req.user;
+    const userId = requestedUser._id;
     const user = users.find(user => user._id === userId);
     const userAddress = user.address.find(address => address.default === true);
-    console.log(userAddress);
     if(user.address.length === 0){
-        const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : true};
+        const newAddress = {id : uuid(), address : addressDetails.address, contactNumber : addressDetails.contactNumber, default : true};
         user.address = [...user.address, newAddress];
         res.status(200).send(user)
     }
     else{
         if(userAddress){
-            console.log("there is default")
             if(addressDetails.default === true){
                 userAddress.default = false;
             }
-            const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : addressDetails.default};
+            const newAddress = {id : uuid(), address : addressDetails.address, contactNumber : addressDetails.contactNumber, default : addressDetails.default};
             user.address = [...user.address, newAddress];
-            console.log(user.address);
             res.status(200).send(user);
         }
         else{
-            console.log("so there is no default")
-            const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : addressDetails.default};
+            const newAddress = {id : uuid(), address : addressDetails.address, contactNumber : addressDetails.contactNumber, default : addressDetails.default};
             user.address = [...user.address, newAddress];
             res.status(200).send(user);
         }
-        
     }
-    // if(addressDetails.isDefault === undefined || addressDetails.isDefault === false){
-    //     const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : false};
-    //     user.address = [...user.address, newAddress];
-    //     res.status(200).send(user);
-    // }
-    // if(userAddress === undefined){
-    //     const newAddress = {id : uuid(), address : addressDetails.address, number : addressDetails.contactNumber, default : addressDetails.isDefault};
-    //     user.address = [...user.address, newAddress];
-    // }
-    // else{
-        
-    // }
-    // users.find(user => user._id === userId).address.find(address => address.default === true).default ? users.find(user => user._id === userId).address.find(address => address.default === true).default = false : null
-    // let userAddress = users.find(user => user._id === userId).address;
-    // userAddress = [...userAddress, {addressDetails}];
-    // console.log(userAddress);
-    // res.status(200).send(users.find(user => user._id === userId));
-    // res.status(200).send(user);
+});
+
+app.delete(`/api/user/address/:addressId`, authenticateToken,  (req, res) => {
+    // TODO: getting address id and user id, then updating address and sending the updated user back.
+    const user = req.user;
+    const {addressId} = req.params
+    const currentUser = users.find(u => u._id === user._id);
+    currentUser.address =  currentUser.address.filter(address => address.id !== addressId);
+    res.status(200).send(currentUser);
+});
+
+app.put(`/api/user/address`, authenticateToken, (req, res) => {
+    const requestUser = req.user;
+    const { addressDetails } = req.body;
+    const user = users.find(user => user._id === requestUser._id);
+    
+    const addressIndex = user.address.findIndex(address => address.id === addressDetails.id);
+    if (addressIndex !== -1) {
+      user.address[addressIndex] = { ...addressDetails };
+      res.status(200).send(user);
+    } else {
+      res.status(404).send("Address not found");
+    }
+});
+
+
+// order related routes
+
+app.post(`/api/order`, authenticateToken, (req, res) => {
+    const {products, shippingAddress, totalCost} = req.body;
+    const currentUser = req.user;
+    const orderDetails = {
+        _id : uuid(),
+        userId : currentUser._id,
+        products : products,
+        shippingAddress : shippingAddress,
+        date : Date.now(),
+        totalCost : totalCost,
+        isPaid : false,
+        isDelivered : false,
+    };
+    const user = users.find(user => user._id === currentUser._id);
+    user.orders.push(orderDetails);
+    res.status(200).send(user);
 })
+  
 
 
 

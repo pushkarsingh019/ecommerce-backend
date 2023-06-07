@@ -8,7 +8,7 @@ export let users = [{
     password : "killpiedpiper",
     cart : [],
     wishlist : [],
-    address : [{id : uuid(), address : "Menlo Park, 2441 Sand Hill Rd, United States,", number : 12345678, default : true}],
+    address : [{id : uuid(), address : "Menlo Park, 2441 Sand Hill Rd, United States,", contactNumber : 12345678, default : true}],
     orders : []
 }];
 

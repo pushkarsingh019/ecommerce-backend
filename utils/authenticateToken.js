@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
+import { ACCESS_SECRET } from "./secret.js";
 
 const authenticateToken = (req, res, next) => {
-    const tokenHeader = req.headers['authorization'];
-    const token = tokenHeader && tokenHeader.split(' ')[1];
-    console.log(token);
+    const token = req.headers['authorization'];
+    // const token = tokenHeader && tokenHeader.split(' ')[1];
     if(token == null) return res.sendStatus(401)
 
     jwt.verify(token, ACCESS_SECRET, (err, user) => {
